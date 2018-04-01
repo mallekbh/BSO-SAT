@@ -12,25 +12,33 @@ import java.util.Vector;
  * @author mohamed amine ben hamida
  */
 public class Solution {
-    private Vector<Integer> solution;
+    private int[] solution;
     private int SatClauses;
     
     public Solution(int numberOfLitterals) {
+        // initialise all values with 0
         for(int i=0;i<numberOfLitterals;i++) {
-            
+           this.solution[i] = 0; 
         }
     }   
-    public void generateSearchArea() {
-        
+    public Solution(int[] solution){
+        this.solution = solution;
     }
-    public Vector<Integer> getSolution() {
+    public Vector<Solution> generateSearchArea(int Flip) {
+        Vector<Solution> SearchArea = new Vector<Solution>();
+        
+        
+        
+        return SearchArea;
+    }
+    public int[] getSolution() {
         return solution;
     }
-    public void setSolution(Vector<Integer> solution) {
+    public void setSolution(int[] solution) {
         this.solution = solution;
     }
     public void setSolutionElement(int index,int value){
-        this.solution.add(index, new Integer(value));
+        this.solution[index] = value;
     }
     public int getSatClauses() {
         return SatClauses;
@@ -38,5 +46,5 @@ public class Solution {
     public void setSatClauses(int SatClauses) {
         this.SatClauses = SatClauses;
     }
-    
+
 }

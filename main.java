@@ -15,7 +15,9 @@ public class main {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO code application logic here
+        BSO bso = new BSO();
+        bso.initialise("/media/malek/8A92B00A92AFF939/MALEK/STUDY/SII_M1_S2_2018/META/PROJET/test_files/1/uuf75-01.cnf");
+        bso.search();
     }
     
 }
