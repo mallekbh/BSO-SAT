@@ -5,6 +5,7 @@
  */
 package bso;
 
+import java.util.Arrays;
 import java.util.Vector;
 
 /**
@@ -22,17 +23,15 @@ public class Solution {
         }
     }   
     public Solution(int[] solution){
-        this.solution = solution;
+       this.solution = Arrays.copyOf(solution, solution.length);
     }
-    public Vector<Solution> generateSearchArea(int Flip) {
-        Vector<Solution> SearchArea = new Vector<Solution>();
-        
-        
-        
-        return SearchArea;
+    public Solution(){
     }
     public int[] getSolution() {
         return solution;
+    }
+    public int getSolutionElement(int index) {
+        return this.solution[index];
     }
     public void setSolution(int[] solution) {
         this.solution = solution;
