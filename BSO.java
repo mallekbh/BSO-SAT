@@ -18,15 +18,65 @@ import java.util.regex.Pattern;
  */
 public class BSO {
 
-    private int MaxIter = 0,NumBees = 5,MaxChange = 0,LocalIter = 0,NumberOfLiterals = 20,NumberOfClauses = 0, Flip = 5;
+    private int MaxIter = 0,NumBees = 10,MaxChange = 0,LocalIter = 0,NumberOfLiterals = 20,NumberOfClauses = 0, Flip = 12;
     private Vector<Solution> SearchArea;
     private Vector<Solution> TabooList;
     private int[][] BC;
-    
+    private int[] Dance;
+   
     public BSO() {
         this.SearchArea = new Vector<Solution>();
         this.TabooList = new Vector<Solution>();
+        this.Dance = new int[this.getNumberOfLiterals()];
     }
+    
+    public void search() {
+        int[] tab = new int[this.getNumberOfLiterals()];
+        for(int i=0;i<tab.length;i++) {
+            tab[i] = 0;
+        }
+        //Solution Sref = new Solution(tab);
+        Solution Sref = this.generateRandomSolution();
+        this.TabooList.add(Sref);
+        this.generateSearchArea(Sref);
+        for(Solution s : this.getSearchArea()) {
+            for(int e:s.getSolution()) {
+                System.out.print(" "+e);
+            }
+            System.out.println("");
+        }
+        for(Solution Sol:this.getSearchArea()) {
+            System.out.println(this.evaluate(Sol));  
+        }
+    }  
+    
+    public Vector<Solution> generateSearchArea(Solution Sref) {
+        int h = 0 , p = 0, index = 0;
+        Solution Sol;
+        if(this.SearchArea != null)this.SearchArea.removeAllElements();
+        while(this.SearchArea.size() < NumBees && h<Flip) {
+            Sol = new Solution(Sref.getSolution());
+            p = 0; index = 0;
+            index = p*Flip+h;
+            if(Sol.getSolutionElement(index) == 0) {
+                Sol.setSolutionElement(index,1);
+            }else{
+                Sol.setSolutionElement(index,0);
+            }
+            while(index < NumberOfLiterals){
+                if(Sol.getSolutionElement(index) == 0) {
+                    Sol.setSolutionElement(index,1);
+                }else{
+                    Sol.setSolutionElement(index,0);
+                }
+                index = p*Flip+h;
+                p++;
+            }
+            this.SearchArea.add(Sol);
+            h++;
+        }
+        return SearchArea;
+    }  
    
     public int evaluate(Solution solution){
         int value = 0 , counter = 0 , sat = 0 , clauses = 0 , satClauses=0;
@@ -48,17 +98,14 @@ public class BSO {
         }
         return satClauses;
     }
-    public void search() {
-        
-    }  
+  
     public void initialise(String file_path){
         String headerReg= "p[ \\t\\n\\x0B\\f\\r]+cnf[ \\t\\n\\x0B\\f\\r]+([0-9]+)[ \\t\\n\\x0B\\f\\r]+([0-9]+)";
         String clauseReg= "(.*)[ \\t\\n\\x0B\\f\\r]+0";//"[ \\t\\n\\x0B\\f\\r]*(.+)[ \\t\\n\\x0B\\f\\r]+0[ \\t\\n\\x0B\\f\\r]+";
         Boolean InfosLineFound = false;
         String inString;
-        int NumberOfClauses , NumberOfLiterals , counter = 0 , clauseLine = 0 , found = 0 ,ltValue=0;
-        String[] literals , FileInfos;
-        
+        int clauseLine = 0 ,ltValue=0;
+        String[] literals;
          try {
             FileReader inFile = new  FileReader(file_path);
             BufferedReader inStream = new BufferedReader(inFile);
@@ -106,34 +153,7 @@ public class BSO {
             e.printStackTrace();
         }
     }  
-    public Vector<Solution> generateSearchArea(Solution Sref) {
-        Vector<Solution> SearchArea = new Vector<Solution>();
-        int h = 0 , p = 0, index = 0;
-        Solution Sol;
-        if(this.SearchArea != null)this.SearchArea.removeAllElements();
-        while(SearchArea.size() < NumBees && h<Flip) {
-            Sol = new Solution(Sref.getSolution());
-            p = 0; index = 0;
-            index = p*Flip+h;
-            if(Sol.getSolutionElement(index) == 0) {
-                Sol.setSolutionElement(index,1);
-            }else{
-                Sol.setSolutionElement(index,0);
-            }
-            while(index < NumberOfLiterals){
-                if(Sol.getSolutionElement(index) == 0) {
-                    Sol.setSolutionElement(index,1);
-                }else{
-                    Sol.setSolutionElement(index,0);
-                }
-                index = p*Flip+h;
-                p++;
-            }
-            this.SearchArea.add(Sol);
-            h++;
-        }
-        return SearchArea;
-    }  
+    
     public BSO(int MaxIter, int NumBees,int MaxChange,int LocalIter) {
         this.MaxIter = MaxIter;
         this.NumBees = NumBees;
@@ -196,6 +216,30 @@ public class BSO {
     }
     public void setTabooList(Vector<Solution> TabooList) {
         this.TabooList = TabooList;
+    }    
+    
+    public int distance(Solution sol1,Solution sol2) {
+        int distance =0;
+        for(int i=0;i<this.getNumberOfLiterals();i++) {
+            if(sol1.getSolutionElement(i) != sol2.getSolutionElement(i)) {
+                distance++;
+            }
+        }
+        return distance;
     }
     
+    public int diversityDegree(Solution sol) {
+        int degree = 0;
+        
+        for(Solution e:this.getTabooList()) {
+            
+        }
+        return degree;
+        
+    }
+    
+    public Solution generateRandomSolution() {
+        Solution randomSol = new Solution();
+        return randomSol;
+    }
 }

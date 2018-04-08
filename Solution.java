@@ -15,6 +15,7 @@ import java.util.Vector;
 public class Solution {
     private int[] solution;
     private int SatClauses;
+    private int diversity;
     
     public Solution(int numberOfLitterals) {
         // initialise all values with 0
@@ -45,5 +46,11 @@ public class Solution {
     public void setSatClauses(int SatClauses) {
         this.SatClauses = SatClauses;
     }
-
+    public int getDiversity() {
+        return diversity;
+    }
+    public void setDiversity(int diversity) {
+        this.diversity = diversity;
+    }
+    
 }
