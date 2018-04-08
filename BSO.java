@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
  */
 public class BSO {
 
-    private int MaxIter = 0,NumBees = 10,MaxChange = 0,LocalIter = 0,NumberOfLiterals = 20,NumberOfClauses = 0, Flip = 12;
+    private int MaxIter = 0,NumBees = 10,MaxChance = 5, NbrChance = 0, LocalIter = 0,NumberOfLiterals = 20,NumberOfClauses = 0, Flip = 12;
     private boolean OptimumFound = false;
     private Vector<Solution> SearchArea;
     private Vector<Solution> TabooList;
@@ -27,19 +27,38 @@ public class BSO {
     
     public void search() {
         int iter = 0, Df = 0;
-        Solution Sref = this.generateRandomSolution();
+        Solution Sref = this.generateRandomSolution() , Best = null;
         while(!this.isOptimumFound() && iter < this.getMaxIter()) {
             this.TabooList.add(Sref);
+            if(this.evaluate(Sref) == this.getNumberOfClauses()) {
+                this.setOptimumFound(true);
+            }
             //this.emptyDance();
             // Search area generation
             this.generateSearchArea(Sref);
             // Local search for each bee
             for(Solution sol:this.getSearchArea()) {
-                this.evaluate(sol);
+                if(this.evaluate(sol) == this.getNumberOfClauses()) {
+                    this.setOptimumFound(true);
+                }
                 this.getDance().add(sol);
             }
             // generation of the next Sref
-            
+            Best = this.bestInQuality();
+            Df = Best.getSatClauses() - Sref.getSatClauses();
+            if(Df>0) {
+                Sref = Best;
+                NbrChance = MaxChance;
+            }else{
+                if(NbrChance>0) {
+                    Sref = Best;
+                    NbrChance--;
+                }else{
+                    this.updateDiversity();
+                    Sref = this.bestInDiversity();
+                    NbrChance = MaxChance;
+                }
+            }
         }
     }  
     public Vector<Solution> generateSearchArea(Solution Sref) {
@@ -227,7 +246,7 @@ public class BSO {
     public BSO(int MaxIter, int NumBees,int MaxChange,int LocalIter) {
         this.MaxIter = MaxIter;
         this.NumBees = NumBees;
-        this.MaxChange = MaxChange;
+        this.MaxChance = MaxChance;
         this.LocalIter = LocalIter;
     }
     /*****************************************************/
@@ -251,11 +270,11 @@ public class BSO {
     public void setNumBees(int NumBees) {
         this.NumBees = NumBees;
     }
-    public int getMaxChange() {
-        return MaxChange;
+    public int getMaxChance() {
+        return MaxChance;
     }
-    public void setMaxChange(int MaxChange) {
-        this.MaxChange = MaxChange;
+    public void setMaxChance(int MaxChance) {
+        this.MaxChance = MaxChance;
     }
     public int getLocalIter() {
         return LocalIter;
