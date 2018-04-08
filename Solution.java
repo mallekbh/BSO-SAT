@@ -17,9 +17,10 @@ public class Solution {
     private int SatClauses;
     private int diversity;
     
-    public Solution(int numberOfLitterals) {
+    public Solution(int numberOfLiterals) {
+        solution = new int[numberOfLiterals];
         // initialise all values with 0
-        for(int i=0;i<numberOfLitterals;i++) {
+        for(int i=0;i<numberOfLiterals;i++) {
            this.solution[i] = 0; 
         }
     }   

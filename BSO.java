@@ -239,7 +239,10 @@ public class BSO {
     }
     
     public Solution generateRandomSolution() {
-        Solution randomSol = new Solution();
+        Solution randomSol = new Solution(this.getNumberOfLiterals());
+        for(int i=0;i<this.getNumberOfLiterals();i++) {
+           randomSol.setSolutionElement(i,(int)(Math.random()*2));
+        }
         return randomSol;
     }
 }
