@@ -19,41 +19,33 @@ import java.util.regex.Pattern;
 public class BSO {
 
     private int MaxIter = 0,NumBees = 10,MaxChange = 0,LocalIter = 0,NumberOfLiterals = 20,NumberOfClauses = 0, Flip = 12;
+    private boolean OptimumFound = false;
     private Vector<Solution> SearchArea;
     private Vector<Solution> TabooList;
     private int[][] BC;
-    private int[] Dance;
-   
-    public BSO() {
-        this.SearchArea = new Vector<Solution>();
-        this.TabooList = new Vector<Solution>();
-        this.Dance = new int[this.getNumberOfLiterals()];
-    }
+    private Vector<Solution> Dance;
     
     public void search() {
-        int[] tab = new int[this.getNumberOfLiterals()];
-        for(int i=0;i<tab.length;i++) {
-            tab[i] = 0;
-        }
-        //Solution Sref = new Solution(tab);
+        int iter = 0, Df = 0;
         Solution Sref = this.generateRandomSolution();
-        this.TabooList.add(Sref);
-        this.generateSearchArea(Sref);
-        for(Solution s : this.getSearchArea()) {
-            for(int e:s.getSolution()) {
-                System.out.print(" "+e);
+        while(!this.isOptimumFound() && iter < this.getMaxIter()) {
+            this.TabooList.add(Sref);
+            //this.emptyDance();
+            // Search area generation
+            this.generateSearchArea(Sref);
+            // Local search for each bee
+            for(Solution sol:this.getSearchArea()) {
+                this.evaluate(sol);
+                this.getDance().add(sol);
             }
-            System.out.println("");
-        }
-        for(Solution Sol:this.getSearchArea()) {
-            System.out.println(this.evaluate(Sol));  
+            // generation of the next Sref
+            
         }
     }  
-    
     public Vector<Solution> generateSearchArea(Solution Sref) {
         int h = 0 , p = 0, index = 0;
         Solution Sol;
-        if(this.SearchArea != null)this.SearchArea.removeAllElements();
+        if(this.SearchArea != null) this.SearchArea.removeAllElements();
         while(this.SearchArea.size() < NumBees && h<Flip) {
             Sol = new Solution(Sref.getSolution());
             p = 0; index = 0;
@@ -77,7 +69,6 @@ public class BSO {
         }
         return SearchArea;
     }  
-   
     public int evaluate(Solution solution){
         int value = 0 , counter = 0 , sat = 0 , clauses = 0 , satClauses=0;
         while(clauses < this.getNumberOfClauses()) {
@@ -97,8 +88,73 @@ public class BSO {
             clauses++;
         }
         return satClauses;
+    } 
+    public void emptyDance() {
+        this.Dance.removeAllElements();
     }
-  
+    public int distance(Solution sol1,Solution sol2) {
+        int distance =0;
+        for(int i=0;i<this.getNumberOfLiterals();i++) {
+            if(sol1.getSolutionElement(i) != sol2.getSolutionElement(i)) {
+                distance++;
+            }
+        }
+        sol1.setDiversity(distance);
+        return distance;
+    }  
+    public int diversityDegree(Solution sol) {
+        int degree = 0 , distance = 0;
+        degree = this.distance(sol,this.getDance().firstElement());
+        for(Solution e:this.getDance()) {
+            distance = this.distance(sol, e);
+            if (degree < distance) {
+                degree = distance;
+            }
+        }
+        sol.setDiversity(degree);
+        return degree;
+    }   
+    public Solution generateRandomSolution() {
+        Solution randomSol = new Solution(this.getNumberOfLiterals());
+        for(int i=0;i<this.getNumberOfLiterals();i++) {
+           randomSol.setSolutionElement(i,(int)(Math.random()*2));
+        }
+        return randomSol;
+    }
+    public Solution bestInQuality() {
+        Solution Optimum = null;
+        if(this.getDance() != null) {
+            Optimum = this.getDance().firstElement();
+            for(Solution sol:this.getDance()) {
+                if(sol.getSatClauses()>Optimum.getSatClauses()) {
+                    Optimum = sol;
+                }
+            }
+        }else{
+            return null;
+        }
+        return Optimum;
+        
+    }
+    public Solution bestInDiversity() {
+        Solution Optimum = null;
+        if(this.getDance() != null) {
+            Optimum = this.getDance().firstElement();    
+            for(Solution sol:this.getDance()){
+                if(sol.getDiversity() > Optimum.getDiversity()) {
+                    Optimum = sol;
+                }
+            }
+        }else{
+            return null;
+        }
+        return Optimum;
+    }
+    public void updateDiversity() {
+        for(Solution sol:this.getDance()) {
+            this.diversityDegree(sol);
+        }
+    }
     public void initialise(String file_path){
         String headerReg= "p[ \\t\\n\\x0B\\f\\r]+cnf[ \\t\\n\\x0B\\f\\r]+([0-9]+)[ \\t\\n\\x0B\\f\\r]+([0-9]+)";
         String clauseReg= "(.*)[ \\t\\n\\x0B\\f\\r]+0";//"[ \\t\\n\\x0B\\f\\r]*(.+)[ \\t\\n\\x0B\\f\\r]+0[ \\t\\n\\x0B\\f\\r]+";
@@ -152,13 +208,36 @@ public class BSO {
         }catch (IOException e) {
             e.printStackTrace();
         }
-    }  
-    
+    }
+    public void initializeBC() {
+        for(int i=0;i<this.getNumberOfClauses();i++){
+            for(int j=0;j<this.getNumberOfLiterals();j++){
+                this.setBC(0,i,j);
+            }
+        }
+    }
+    /*****************************************************/
+    /*                   constructors                    */
+    /*****************************************************/
+    public BSO() {
+        this.SearchArea = new Vector<Solution>();
+        this.TabooList = new Vector<Solution>();
+        this.Dance = new Vector<Solution>();
+    }
     public BSO(int MaxIter, int NumBees,int MaxChange,int LocalIter) {
         this.MaxIter = MaxIter;
         this.NumBees = NumBees;
         this.MaxChange = MaxChange;
         this.LocalIter = LocalIter;
+    }
+    /*****************************************************/
+    /*                getters & setters                  */
+    /*****************************************************/
+    public boolean isOptimumFound() {
+        return OptimumFound;
+    }
+    public void setOptimumFound(boolean OptimumFound) {
+        this.OptimumFound = OptimumFound;
     }
     public int getMaxIter() {
         return MaxIter;
@@ -198,13 +277,6 @@ public class BSO {
     }
     public void setBC(int value,int i , int j) { this.BC[i][j] = value;}
     public int getBC(int i , int j) { return this.BC[i][j]; }
-    public void initializeBC() {
-        for(int i=0;i<this.getNumberOfClauses();i++){
-            for(int j=0;j<this.getNumberOfLiterals();j++){
-                this.setBC(0,i,j);
-            }
-        }
-    }
     public Vector<Solution> getSearchArea() {
         return SearchArea;
     }
@@ -217,32 +289,10 @@ public class BSO {
     public void setTabooList(Vector<Solution> TabooList) {
         this.TabooList = TabooList;
     }    
-    
-    public int distance(Solution sol1,Solution sol2) {
-        int distance =0;
-        for(int i=0;i<this.getNumberOfLiterals();i++) {
-            if(sol1.getSolutionElement(i) != sol2.getSolutionElement(i)) {
-                distance++;
-            }
-        }
-        return distance;
+    public Vector<Solution> getDance() {
+        return Dance;
     }
-    
-    public int diversityDegree(Solution sol) {
-        int degree = 0;
-        
-        for(Solution e:this.getTabooList()) {
-            
-        }
-        return degree;
-        
-    }
-    
-    public Solution generateRandomSolution() {
-        Solution randomSol = new Solution(this.getNumberOfLiterals());
-        for(int i=0;i<this.getNumberOfLiterals();i++) {
-           randomSol.setSolutionElement(i,(int)(Math.random()*2));
-        }
-        return randomSol;
+    public void setDance(Vector<Solution> Dance) {
+        this.Dance = Dance;
     }
 }
