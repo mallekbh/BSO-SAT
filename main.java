@@ -18,11 +18,8 @@ public class main {
      */
     public static void main(String[] args) {
         BSO bso = new BSO();
-       
-        bso.initialise("/media/malek/MALEK/STUDY/SII_M1_S2_2018/META/PROJET/test_files/1/uuf75-01.cnf");
+        bso.initialise("/media/malek/MALEK/STUDY/SII_M1_S2_2018/META/PROJET/test_files/2/uf75-07.cnf");
         bso.search();
-        
-         
     }
     
 }

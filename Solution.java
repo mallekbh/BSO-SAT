@@ -27,16 +27,34 @@ public class Solution {
     public Solution(int[] solution){
        this.solution = Arrays.copyOf(solution, solution.length);
     }
+    public Solution(int[] solution , int satClauses){
+        this.solution = Arrays.copyOf(solution, solution.length);
+        this.SatClauses = satClauses;
+    }
     public Solution(){
     }
     public int[] getSolution() {
         return solution;
     }
+    public boolean isEqual(Solution sol) {
+        boolean state = false;
+        int cpt = 0;
+        if(sol == null) return false;
+        else {
+            for(int i=0;i<sol.getSolution().length;i++) {
+                if(this.getSolution()[i] == sol.getSolution()[i]) {
+                    cpt++;
+                }
+            }
+        }
+        if(cpt == this.getSolution().length) state = true;
+        return state;
+    }
     public int getSolutionElement(int index) {
         return this.solution[index];
     }
     public void setSolution(int[] solution) {
-        this.solution = solution;
+        this.solution = Arrays.copyOf(solution, solution.length);
     }
     public void setSolutionElement(int index,int value){
         this.solution[index] = value;
@@ -53,5 +71,21 @@ public class Solution {
     public void setDiversity(int diversity) {
         this.diversity = diversity;
     }
+    public void showSolution(String msg) {
+        System.out.print(msg+": "+this.getSatClauses()+" diversity : "+this.getDiversity()+" ");
+        for(int e:this.getSolution()) {
+            System.out.print(e);
+        }
+        System.out.println("");
+    }
     
+    public int distance(Solution sol2) {
+        int distance =0;
+        for(int i=0;i<this.getSolution().length;i++) {
+            if(this.getSolutionElement(i) != sol2.getSolutionElement(i)) {
+                distance++;
+            }
+        }
+        return distance;
+    }  
 }
